@@ -5,19 +5,19 @@
 
 - name: Create wazuh_install_location folder if not exist
   ansible.windows.win_file:
-    path: "{{wazuh_install_location}}"
+    path: "{{ludus_wazuh_install_location}}"
     state: directory
 
 - name: Download Wazuh Agent MSI package
   win_get_url:
     url: "{{ ludus_wazuh_agent_install_package }}"
-    dest: "{{wazuh_install_location}}/wazuh-agent"
+    dest: "{{ludus_wazuh_install_location}}/wazuh-agent"
   register: wazuh_agent_download
   until: wazuh_agent_download is succeeded
   when: not wazuh_agent_service.exists
 
 - name: Install Wazuh Agent
-  win_command: msiexec.exe /i "{{wazuh_install_location}}\wazuh-agent" /q WAZUH_MANAGER={{ wazuh_manager_host }} WAZUH_REGISTRATION_SERVER={{ wazuh_manager_host }}
+  win_command: msiexec.exe /i "{{ludus_wazuh_install_location}}\wazuh-agent" /q WAZUH_MANAGER={{ ludus_wazuh_siem_server }} WAZUH_REGISTRATION_SERVER={{ ludus_wazuh_siem_server }}
   when: wazuh_agent_download is succeeded and not wazuh_agent_service.exists
 
 - name: Start Wazuh Agent service
@@ -26,4 +26,5 @@
     state: started
     start_mode: auto
   when: wazuh_agent_download is succeeded and not wazuh_agent_service.exists
+
 
